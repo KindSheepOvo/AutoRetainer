@@ -114,5 +114,5 @@ public unsafe static class TaskBuySealSweetener
     static uint[] ValidOfficerDataID = [1003925, 1002389, 1000165];
     static string Choice = Svc.Data.GetExcelSheet<QuestDialogueText>(name: "custom/001/ComDefFreeCompanyReward_00100").GetRow(2).Value.GetText();
 
-    
+
 }

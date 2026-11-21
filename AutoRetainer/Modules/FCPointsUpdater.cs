@@ -29,7 +29,7 @@ public sealed unsafe class FCPointsUpdater
             var reader = new ReaderFreeCompanyChest(m.Addon);
             if(reader.Ready)
             {
-                PluginLog.Debug($"Clicking button {num}");
+                PluginLog.Debug($"正在点击按钮 {num}");
                 var button = m.ItemsButtons[num];
                 if(button != null)
                 {
@@ -91,18 +91,6 @@ public sealed unsafe class FCPointsUpdater
                     }
                 });
                 TaskManager.Enqueue(() => Chat.ExecuteCommand("/freecompanycmd"));
-                /*TaskManager.Enqueue(() =>
-								{
-										if(TryGetAddonByName<AtkUnitBase>("FreeCompany", out var addon))
-										{
-												if (addon->IsVisible())
-												{
-														addon->IsVisible() = false;
-														return true;
-												}
-										}
-										return false;
-								});*/
                 TaskManager.Enqueue(() =>
                 {
                     if(TryGetAddonByName<AtkUnitBase>("FreeCompany", out var addon))

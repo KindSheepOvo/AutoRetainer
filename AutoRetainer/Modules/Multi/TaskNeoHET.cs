@@ -25,7 +25,7 @@ public static unsafe class TaskNeoHET
 
     public static void Enqueue(Action onFailure, bool tryForceWorkshop = false)
     {
-        DebugLog($"Enqueued HouseEnterTask from {new StackTrace().GetFrames().Select(x => x.GetMethod()?.Name).Prepend("      ").Print("\n")}");
+        DebugLog($"已从以下调用位置加入住宅进入任务：{new StackTrace().GetFrames().Select(x => x.GetMethod()?.Name).Prepend("      ").Print("\n")}");
         P.TaskManager.EnqueueTask(NeoTasks.WaitForNotOccupied(new(timeLimitMS: 10 * 60 * 1000)));
         P.TaskManager.Enqueue(() =>
         {
@@ -70,7 +70,7 @@ public static unsafe class TaskNeoHET
             {
                 onFailure?.Invoke();
             }
-        }, "TaskNeoHET");
+        }, "住宅进入任务");
     }
 
     public static bool HasEntranceNearby()
@@ -103,7 +103,7 @@ public static unsafe class TaskNeoHET
                     new(NpcSaleManager.EnqueueIfItemsPresent),
                     NeoTasks.InteractWithObject(GetWorkshopEntrance),
                     new(TaskContinueHET.SelectEnterWorkshop),
-                    new(() => VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType), "Wait Until entered workshop"),
+                    new(() => VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType), "等待进入部队工房"),
                     NeoTasks.WaitForScreenAndPlayer(),
                     ]);
                 if(C.FCChestGilCheck && DateTimeOffset.Now.ToUnixTimeMilliseconds() - C.FCChestGilCheckTimes.SafeSelect(Player.CID) > C.FCChestGilCheckCd * 60 * 60 * 1000)
@@ -147,13 +147,13 @@ public static unsafe class TaskNeoHET
         for(int index = 0; index < S.FCPointsUpdater.GetFCChestNum(); index++)
         {
             var i = index;
-            ret.Add(new(() => S.FCPointsUpdater.SelectFCChestTab(i), $"Select tab {i}"));
+            ret.Add(new(() => S.FCPointsUpdater.SelectFCChestTab(i), $"选择分页 {i}"));
             ret.Add(new FrameDelayTask(4));
-            ret.Add(new(() => S.FCPointsUpdater.IsFCChestReady(), $"Wait for FC chest ready {i}"));
+            ret.Add(new(() => S.FCPointsUpdater.IsFCChestReady(), $"等待部队仓库就绪 {i}"));
             ret.Add(new FrameDelayTask(4));
         }
 
-        PluginLog.Information($"Generated tasks for {ret.Count / 4} tabs");
+        PluginLog.Information($"已为 {ret.Count / 4} 个分页生成任务");
         return ret;
     }
 
@@ -207,9 +207,6 @@ public static unsafe class TaskNeoHET
 
     public static IGameObject GetHouseEntranceFromMarkers(IEnumerable<uint> markers)
     {
-        /*var entrance = Svc.Objects.Where(x => x.IsTargetable && x.Name.ToString().EqualsIgnoreCaseAny([.. Lang.Entrance, Lang.ApartmentEntrance])).OrderBy(Player.DistanceTo).FirstOrDefault();
-        PluginLog.Warning($"Temporary HUD bypass is being applied");
-        return entrance;*/
         var hud = AgentHUD.Instance();
         if(hud->MapMarkers.Where(x => x.IconId.EqualsAny(markers)).OrderBy(x => Player.DistanceTo(new Vector2(x.Position.X, x.Position.Z))).TryGetFirst(out var marker))
         {
@@ -223,8 +220,6 @@ public static unsafe class TaskNeoHET
     public static bool IsInMarkerHousingPlot(IEnumerable<uint> markers)
     {
         if(HousingManager.Instance()->GetCurrentPlot() < 0) return false;
-        /*PluginLog.Warning($"Temporary HUD bypass is being applied (2)");
-        return true;*/
         var hud = AgentHUD.Instance();
         if(hud->MapMarkers.Where(x => x.IconId.EqualsAny(markers)).TryGetFirst(x => Player.DistanceTo(new Vector2(x.Position.X, x.Position.Z)) < ValidPlayerToApartmentDistance, out var marker))
         {

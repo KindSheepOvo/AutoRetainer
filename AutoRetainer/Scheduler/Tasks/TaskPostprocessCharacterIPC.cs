@@ -14,7 +14,7 @@ public class TaskPostprocessCharacterIPC
             P.TaskManager.BeginStack();
             try
             {
-                DebugLog($"SchedulerMain.CharacterPostprocess contains: {SchedulerMain.CharacterPostprocess.Print()}, pluginToProcess = {pluginToProcess}");
+                DebugLog($"SchedulerMain.CharacterPostprocess 包含：{SchedulerMain.CharacterPostprocess.Print()}，待处理插件 = {pluginToProcess}");
                 foreach(var pname in SchedulerMain.CharacterPostprocess.Where(x => pluginToProcess == null || x == pluginToProcess))
                 {
                     var x = pname;
@@ -23,8 +23,8 @@ public class TaskPostprocessCharacterIPC
                             SchedulerMain.CharacterPostprocess = SchedulerMain.CharacterPostprocess.Remove(x);
                             SchedulerMain.CharacterPostProcessLocked = x;
                             IPC.FireCharacterPostprocessEvent(x);
-                        }, $"Character Postprocess request from {x}");
-                    P.TaskManager.Enqueue(() => SchedulerMain.CharacterPostProcessLocked == null, $"Character Postprocess task from {x}", new(timeLimitMS: int.MaxValue));
+                        }, $"来自 {x} 的角色后处理请求");
+                    P.TaskManager.Enqueue(() => SchedulerMain.CharacterPostProcessLocked == null, $"来自 {x} 的角色后处理任务", new(timeLimitMS: int.MaxValue));
                 }
             }
             catch(Exception e) { e.Log(); }

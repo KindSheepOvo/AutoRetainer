@@ -19,22 +19,22 @@ public unsafe class DebugCabinet : DebugSectionBase
     {
         ImGuiEx.TextCopy($"{((nint)(&UIState.Instance()->Cabinet) + 4):X}");
         ImGuiEx.Text($"""
-            
-            State 1: {*(int*)((nint)(&UIState.Instance()->Cabinet))}
-            State 2: {*(int*)((nint)(&UIState.Instance()->Cabinet) + 4)}
+
+            状态 1： {*(int*)((nint)(&UIState.Instance()->Cabinet))}
+            状态 2： {*(int*)((nint)(&UIState.Instance()->Cabinet) + 4)}
             """);
-        if(ImGuiEx.Button("Execute command 423", ImGuiEx.Ctrl))
+        if(ImGuiEx.Button("执行命令 423", ImGuiEx.Ctrl))
         {
             GameMain.ExecuteCommand(423);
         }
         ref var onlyIn = ref Ref<bool>.Get("OnlyIn");
-        if(ImGui.CollapsingHeader("Cabinet items"))
+        if(ImGui.CollapsingHeader("收藏柜物品"))
         {
-            ImGui.Checkbox("Show all##1", ref onlyIn);
+            ImGui.Checkbox("显示全部##1", ref onlyIn);
             var state = UIState.Instance()->Cabinet.State;
             if(state == FFXIVClientStructs.FFXIV.Client.Game.UI.Cabinet.CabinetState.Loaded)
             {
-                if(ImGuiEx.BeginDefaultTable("CabItems", ["~Item", "Cab. ID", "In cabinet"]))
+                if(ImGuiEx.BeginDefaultTable("CabItems", ["~物品", "收藏柜 ID", "已存入收藏柜"]))
                 {
                     foreach(var x in Cabinet.Values)
                     {
@@ -53,16 +53,16 @@ public unsafe class DebugCabinet : DebugSectionBase
             }
             else
             {
-                ImGuiEx.Text("Not loaded");
+                ImGuiEx.Text("未加载");
             }
         }
-        if(ImGui.CollapsingHeader("Cabinet items (with cache)"))
+        if(ImGui.CollapsingHeader("收藏柜物品（含缓存）"))
         {
-            ImGui.Checkbox("Only show stored##2", ref onlyIn);
+            ImGui.Checkbox("仅显示已存入物品##2", ref onlyIn);
             if(S.CabinetManager.TryGetStoredCabinetItems(out bool itemsCached, out var cabItems))
             {
-                ImGuiEx.Text($"Cached: {itemsCached}");
-                if(ImGuiEx.BeginDefaultTable("CabItems", ["~Item", "Cab. ID", "AR verdict"]))
+                ImGuiEx.Text($"已缓存：{Lang.Bool(itemsCached)}");
+                if(ImGuiEx.BeginDefaultTable("CabItems", ["~物品", "收藏柜 ID", "AR 判定"]))
                 {
                     foreach(var x in Cabinet.Values)
                     {
@@ -80,11 +80,11 @@ public unsafe class DebugCabinet : DebugSectionBase
                 }
             }
         }
-        if(ImGui.CollapsingHeader("Cabinet items (from offline data only)"))
+        if(ImGui.CollapsingHeader("收藏柜物品（仅离线数据）"))
         {
-            ImGui.Checkbox("Only show stored", ref onlyIn);
-            if(ImGui.Button("Write offline data")) OfflineDataManager.WriteOfflineData(true, true);
-            if(ImGuiEx.BeginDefaultTable("CabItems", ["~Item", "Cab. ID", "AR verdict"]))
+            ImGui.Checkbox("仅显示已存入物品", ref onlyIn);
+            if(ImGui.Button("写入离线数据")) OfflineDataManager.WriteOfflineData(true, true);
+            if(ImGuiEx.BeginDefaultTable("CabItems", ["~物品", "收藏柜 ID", "AR 判定"]))
             {
                 foreach(var x in Cabinet.Values)
                 {
@@ -101,9 +101,9 @@ public unsafe class DebugCabinet : DebugSectionBase
                 ImGui.EndTable();
             }
         }
-        if(ImGui.CollapsingHeader("AutoMirage"))
+        if(ImGui.CollapsingHeader("自动存入幻化台"))
         {
-            if(ImGui.Button("MEnqueueGoToInnAndDeliverEverything"))
+            if(ImGui.Button("前往旅馆并存入幻化台"))
             {
                 S.MirageManager.EnqueueGoToInnAndDeliverEverything();
             }
@@ -126,21 +126,21 @@ public unsafe class DebugCabinet : DebugSectionBase
             }
         }
         ImGui.Separator();
-        ImGuiEx.Text($"CanDeliverCabinet: {S.CabinetManager.CanDeliverCabinet()}");
-        if(ImGui.Button("Deliver items")) S.CabinetManager.EnqueueAllDeliverableItems();
-        if(ImGui.Button("EnqueueGoToInnAndDeliverEverything")) S.CabinetManager.EnqueueGoToInnAndDeliverEverything();
+        ImGuiEx.Text($"可存入收藏柜：{Lang.Bool(S.CabinetManager.CanDeliverCabinet())}");
+        if(ImGui.Button("存入物品")) S.CabinetManager.EnqueueAllDeliverableItems();
+        if(ImGui.Button("前往旅馆并存入全部物品")) S.CabinetManager.EnqueueGoToInnAndDeliverEverything();
         if(S.CabinetManager.TryGetStoredCabinetItems(out var cached, out var items))
         {
-            ImGuiEx.Text($"Cached: {cached}");
-            if(ImGui.CollapsingHeader("Items"))
+            ImGuiEx.Text($"已缓存：{Lang.Bool(cached)}");
+            if(ImGui.CollapsingHeader("物品"))
             {
                 foreach(var x in items)
                 {
-                    ImGuiEx.Text($"{ExcelItemHelper.GetName(x)} / fmic w/o armory: {Utils.FindMinimumItemCondition(x, false)} / fmic w/ armory: {Utils.FindMinimumItemCondition(x, true)}");
+                    ImGuiEx.Text($"{ExcelItemHelper.GetName(x)} / 最低耐久度（不含兵装库）： {Utils.FindMinimumItemCondition(x, false)} / 最低耐久度（含兵装库）： {Utils.FindMinimumItemCondition(x, true)}");
                 }
             }
         }
-        if(ImGui.CollapsingHeader("Protected by cabinet"))
+        if(ImGui.CollapsingHeader("受收藏柜保护的物品"))
         {
             foreach(var x in Utils.PlayerEntireInventory)
             {
@@ -166,7 +166,7 @@ public unsafe class DebugCabinet : DebugSectionBase
                 }
             }
         }
-        if(ImGui.CollapsingHeader("Protected by mirage"))
+        if(ImGui.CollapsingHeader("受幻化台保护的物品"))
         {
             foreach(var x in Utils.PlayerEntireInventory)
             {

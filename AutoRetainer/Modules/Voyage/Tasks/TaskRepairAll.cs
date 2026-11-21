@@ -13,7 +13,7 @@ internal static unsafe class TaskRepairAll
         P.TaskManager.BeginStack();
         try
         {
-            VoyageUtils.Log($"Task enqueued: {nameof(TaskRepairAll)}");
+            VoyageUtils.Log($"任务已加入队列：{nameof(TaskRepairAll)}");
             Name = vesselName;
             Type = type;
             Abort = false;
@@ -21,7 +21,7 @@ internal static unsafe class TaskRepairAll
             foreach(var itemIndex in itemIndexes)
             {
                 if(itemIndex < 0 || itemIndex > 3) throw new ArgumentOutOfRangeException(nameof(itemIndex));
-                P.TaskManager.Enqueue(() => VoyageScheduler.TryRepair(itemIndex), $"Repair {itemIndex}");
+                P.TaskManager.Enqueue(() => VoyageScheduler.TryRepair(itemIndex), $"修理 {itemIndex}");
                 P.TaskManager.Enqueue(() => Abort || VoyageScheduler.WaitForYesNoDisappear() == true, "WaitForYesNoDisappear", new(timeLimitMS: 5000, abortOnTimeout: false));
                 P.TaskManager.Enqueue(() => Abort || VoyageUtils.GetVesselComponent(vesselName, type, itemIndex)->Condition > 0, "WaitUntilRepairComplete");
                 P.TaskManager.EnqueueDelay(Utils.FrameDelay * 2, true);
@@ -30,6 +30,5 @@ internal static unsafe class TaskRepairAll
         }
         catch(Exception e) { e.Log(); }
         P.TaskManager.InsertStack();
-        //P.TaskManager.Enqueue(() => Abort ? VoyageScheduler.SelectQuitVesselMenu() : true, "SelectQuitVesselMenu failed repair");
     }
 }

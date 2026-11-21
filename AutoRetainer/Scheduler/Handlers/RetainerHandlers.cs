@@ -86,7 +86,7 @@ internal static unsafe class RetainerHandlers
         }
         if(EzThrottler.Throttle("EnforceSelectString", 3000))
         {
-            PluginLog.Warning($"Enforcing {Action.GetType().FullName} ");
+            PluginLog.Warning($"正在强制执行 {Action.GetType().FullName}");
             Action();
         }
         return false;
@@ -104,7 +104,7 @@ internal static unsafe class RetainerHandlers
             if(FrameThrottler.Check(thrName) && addon->ReassignButton->IsEnabled && Utils.GenericThrottle)
             {
                 new AddonMaster.RetainerTaskResult(addon).Reassign();
-                DebugLog($"Clicked reassign");
+                DebugLog($"已点击重新委托");
                 return true;
             }
         }
@@ -127,7 +127,7 @@ internal static unsafe class RetainerHandlers
             if(FrameThrottler.Check(thrName) && addon->ConfirmButton->IsEnabled && Utils.GenericThrottle)
             {
                 new AddonMaster.RetainerTaskResult(addon).Confirm();
-                DebugLog($"Clicked confirm");
+                DebugLog($"已点击确认");
                 return true;
             }
         }
@@ -150,7 +150,7 @@ internal static unsafe class RetainerHandlers
             if(FrameThrottler.Check(thrName) && addon->AssignButton->IsEnabled && Utils.GenericThrottle)
             {
                 new AddonMaster.RetainerTaskAsk((IntPtr)addon).Assign();
-                DebugLog("Clicked assign");
+                DebugLog("已点击委托");
                 var day = Utils.GetDaysSinceUtcStart();
                 Data.SentVenturesByDay[day] = Data.SentVenturesByDay.SafeSelect(day) + 1;
                 Data.SentVenturesByDay.RemoveAll(x => x.Key < day - 30);
@@ -176,7 +176,7 @@ internal static unsafe class RetainerHandlers
             if(FrameThrottler.Check(thrName) && addon->ReturnButton->IsEnabled && Utils.GenericThrottle)
             {
                 new AddonMaster.RetainerTaskAsk((IntPtr)addon).Return();
-                DebugLog("Clicked return");
+                DebugLog("已点击召回");
                 return true;
             }
         }
@@ -214,9 +214,8 @@ internal static unsafe class RetainerHandlers
             var button = (AtkComponentButton*)addon->UldManager.NodeList[invName.EntrustDuplicatesIndex]->GetComponent();
             if(addon->UldManager.NodeList[invName.EntrustDuplicatesIndex]->IsVisible() && button->IsEnabled && Utils.GenericThrottle)
             {
-                //new ClickButtonGeneric(addon, invName.Name).Click(button);
                 Callback.Fire(addon, false, (int)0);
-                DebugLog($"Clicked entrust duplicates {invName.Name} {invName.EntrustDuplicatesIndex}");
+                DebugLog($"已点击同类道具合并递交 {invName.Name} {invName.EntrustDuplicatesIndex}");
                 return true;
             }
         }
@@ -235,7 +234,7 @@ internal static unsafe class RetainerHandlers
             if(addon->UldManager.NodeList[3]->IsVisible() && button->IsEnabled && Utils.GenericThrottle)
             {
                 button->ClickAddonButton(addon);
-                DebugLog($"Clicked duplicates confirm");
+                DebugLog($"已确认同类道具合并递交");
                 return true;
             }
         }
@@ -257,7 +256,7 @@ internal static unsafe class RetainerHandlers
             if(nodetext == text && addon->UldManager.NodeList[2]->IsVisible() && button->IsEnabled && Utils.GenericThrottle)
             {
                 button->ClickAddonButton(addon);
-                DebugLog($"Clicked transfer progress close");
+                DebugLog($"已点击关闭转移进度窗口");
                 return true;
             }
         }
@@ -283,9 +282,9 @@ internal static unsafe class RetainerHandlers
     {
         if(TryGetAddonMaster<AddonMaster.Bank>(out var m) && m.IsAddonReady && Utils.TryGetCurrentRetainer(out var name) && Utils.TryGetRetainerByName(name, out var retainer))
         {
-            if(percent < 1 || percent > 100) throw new ArgumentOutOfRangeException(nameof(percent), percent, "Percent must be between 1 and 100");
+            if(percent < 1 || percent > 100) throw new ArgumentOutOfRangeException(nameof(percent), percent, "百分比必须介于 1 到 100 之间");
             var numGil = m.Addon->AtkValues[6].Int;
-            DebugLog($"Gil: {numGil}");
+            DebugLog($"金币：{numGil}");
             var gilToWithdraw = (uint)(percent == 100 ? numGil : (double)numGil / 100d * percent);
             if(gilToWithdraw > 0 && gilToWithdraw <= numGil)
             {
@@ -297,7 +296,7 @@ internal static unsafe class RetainerHandlers
                             new() { Type = AtkValueType.UInt, UInt = gilToWithdraw }
                         };
                     m.Addon->FireCallback(2, v);
-                    DebugLog($"Set gil to withdraw {gilToWithdraw} (total: {numGil})");
+                    DebugLog($"已将取出金币数量设置为 {gilToWithdraw}（总计：{numGil}）");
                     return true;
                 }
             }
@@ -317,9 +316,9 @@ internal static unsafe class RetainerHandlers
     {
         if(TryGetAddonByName<AtkUnitBase>("Bank", out var addon) && IsAddonReady(addon))
         {
-            if(percent < 1 || percent > 100) throw new ArgumentOutOfRangeException(nameof(percent), percent, "Percent must be between 1 and 100");
+            if(percent < 1 || percent > 100) throw new ArgumentOutOfRangeException(nameof(percent), percent, "百分比必须介于 1 到 100 之间");
             var numGil = TaskDepositGil.Gil;
-            DebugLog($"Gil: {numGil}");
+            DebugLog($"金币：{numGil}");
             var gilToDeposit = (uint)(percent == 100 ? numGil : numGil / 100f * percent);
             if(gilToDeposit > 0 && gilToDeposit <= numGil)
             {
@@ -331,7 +330,7 @@ internal static unsafe class RetainerHandlers
                         new() { Type = AtkValueType.UInt, UInt = gilToDeposit }
                     };
                     addon->FireCallback(2, v);
-                    DebugLog($"Set gil to deposit {gilToDeposit} (total: {numGil})");
+                    DebugLog($"已将存入金币设置为 {gilToDeposit}（总计：{numGil}）");
                     return true;
                 }
             }
@@ -351,9 +350,9 @@ internal static unsafe class RetainerHandlers
     {
         if(TryGetAddonByName<AtkUnitBase>("Bank", out var addon) && IsAddonReady(addon))
         {
-            if(amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), amount, "Amount must be 1 or higher");
+            if(amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), amount, "数量必须大于等于 1");
             var numGil = TaskDepositGil.Gil;
-            DebugLog($"Gil: {numGil}");
+            DebugLog($"金币：{numGil}");
             var gilToDeposit = (uint)numGil;
             if(gilToDeposit > 0 && gilToDeposit <= numGil)
             {
@@ -365,7 +364,7 @@ internal static unsafe class RetainerHandlers
                         new() { Type = AtkValueType.UInt, UInt = gilToDeposit }
                     };
                     addon->FireCallback(2, v);
-                    DebugLog($"Set gil to deposit {gilToDeposit} (total: {numGil})");
+                    DebugLog($"已将存入金币设置为 {gilToDeposit}（总计：{numGil}）");
                     return true;
                 }
             }
@@ -393,7 +392,7 @@ internal static unsafe class RetainerHandlers
                     new() { Type = 0, UInt = 0 }
                 };
                 addon->FireCallback(2, v);
-                DebugLog($"Swapping withdraw mode");
+                DebugLog($"正在切换金币取出模式");
                 return true;
             }
         }
@@ -454,7 +453,7 @@ internal static unsafe class RetainerHandlers
                 }
                 else
                 {
-                    PluginLog.Error($"Can not find venture id {VentureID} [{ventureName}] in list {VentureUtils.GetAvailableVentureNames().Print()}");
+                    PluginLog.Error($"无法在列表 {VentureUtils.GetAvailableVentureNames().Print()} 中找到探险 ID {VentureID} [{ventureName}]");
                 }
             }
         }
@@ -473,7 +472,7 @@ internal static unsafe class RetainerHandlers
             {
                 //An Error is on screen.
                 new AddonMaster.RetainerTaskAsk((IntPtr)addon).Return();
-                DebugLog($"Clicked cancel");
+                DebugLog($"已点击取消");
                 P.TaskManager.BeginStack();
                 try
                 {
@@ -492,22 +491,6 @@ internal static unsafe class RetainerHandlers
         }
         return false;
     }
-
-
-    /*public static bool? SearchVentureByName(uint id) => SearchVentureByName(VentureUtils.GetVentureName(id));
-
-    public static bool? SearchVentureByName(string name)
-    {
-        if (TryGetAddonByName<AtkUnitBase>("RetainerTaskSupply", out var addon) && IsAddonReady(addon))
-        {
-            if (Utils.GenericThrottle) 
-            {
-                Callback.Fire(addon, true, 2, new AtkValue() { Type = 0, Int = 0}, name);
-                return true;
-            }
-        }
-        return false;
-    }*/
 
     [Obsolete]
     public static bool? SelectSpecificVentureByName(uint id)
@@ -529,7 +512,7 @@ internal static unsafe class RetainerHandlers
             if(state.Type == 0)
             {
                 FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-                DebugLog($"RetainerTaskSupply waiting (2)...");
+                DebugLog($"雇员探险列表界面正在等待（2）……");
                 return false;
             }
 
@@ -538,15 +521,15 @@ internal static unsafe class RetainerHandlers
                 if(addon->UldManager.NodeList[3]->IsVisible())
                 {
                     var list = addon->UldManager.NodeList[3]->GetAsAtkComponentList();
-                    DebugLog($"Cnt: {list->ListLength}");
+                    DebugLog($"数量：{list->ListLength}");
                     for(var i = 0; i < Math.Min(list->ListLength, 16); i++)
                     {
                         var el = list->AtkComponentBase.UldManager.NodeList[2 + i];
                         var text = GenericHelpers.ReadSeString(&el->GetAsAtkComponentNode()->Component->UldManager.NodeList[9]->GetAsAtkTextNode()->NodeText).GetText();
-                        DebugLog($"Text: {text}, name: {name}");
+                        DebugLog($"文本：{text}，名称：{name}");
                         if(text == name)
                         {
-                            DebugLog($"Match");
+                            DebugLog($"匹配");
                             Callback.Fire(addon, true, 5, i, new AtkValue() { Type = 0, Int = 0 });
                             return true;
                         }
@@ -566,7 +549,7 @@ internal static unsafe class RetainerHandlers
         else
         {
             FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-            DebugLog($"RetainerTaskSupply waiting...");
+            DebugLog($"雇员探险列表界面正在等待……");
         }
         return false;
     }
@@ -579,7 +562,7 @@ internal static unsafe class RetainerHandlers
             if(state.Type == 0)
             {
                 FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-                DebugLog($"RetainerTaskSupply waiting (2)...");
+                DebugLog($"雇员探险列表界面正在等待（2）……");
                 return false;
             }
 
@@ -593,7 +576,7 @@ internal static unsafe class RetainerHandlers
         else
         {
             FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-            DebugLog($"RetainerTaskSupply waiting...");
+            DebugLog($"雇员探险列表界面正在等待……");
         }
         return false;
     }

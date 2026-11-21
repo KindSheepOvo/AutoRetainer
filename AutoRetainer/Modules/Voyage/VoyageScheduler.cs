@@ -32,7 +32,7 @@ internal static unsafe class VoyageScheduler
         {
             if(Utils.GenericThrottle)
             {
-                Log("Closing repair window (CompanyCraftSupply)");
+                Log("正在关闭修理窗口（界面：CompanyCraftSupply）");
                 Callback.Fire(addon, true, 5);
                 return true;
             }
@@ -41,7 +41,7 @@ internal static unsafe class VoyageScheduler
         {
             if(Utils.GenericThrottle)
             {
-                Log("Closing repair window (AirShipPartsMenu)");
+                Log("正在关闭修理窗口（界面：AirShipPartsMenu）");
                 Callback.Fire(addon2, true, 5);
                 return true;
             }
@@ -55,7 +55,7 @@ internal static unsafe class VoyageScheduler
         var t = $"VoyageScheduler.TryRepair{slot}";
         if(TryGetAddonByName<AtkUnitBase>("SelectYesno", out var _))
         {
-            Log("Found yesno, repair request success");
+            Log("已找到确认窗口，修理请求成功");
             return true;
         }
         if(EzThrottler.Check(t))
@@ -66,7 +66,7 @@ internal static unsafe class VoyageScheduler
                 {
                     Callback.Fire(addon, true, (int)3, Utils.ZeroAtkValue, (int)slot, Utils.ZeroAtkValue, Utils.ZeroAtkValue, Utils.ZeroAtkValue);
                     EzThrottler.Throttle(t, 1000, true);
-                    Log($"Executing CompanyCraftSupply repair request on slot {slot} ");
+                    Log($"正在对栏位 {slot} 发起修理请求（界面：CompanyCraftSupply）");
                     return false;
                 }
             }
@@ -76,7 +76,7 @@ internal static unsafe class VoyageScheduler
                 {
                     Callback.Fire(addon2, true, (int)3, Utils.ZeroAtkValue, (int)slot, Utils.ZeroAtkValue, Utils.ZeroAtkValue, Utils.ZeroAtkValue);
                     EzThrottler.Throttle(t, 1000, true);
-                    Log($"Executing AirShipPartsMenu repair request on slot {slot} ");
+                    Log($"正在对栏位 {slot} 发起修理请求（界面：AirShipPartsMenu）");
                     return false;
                 }
             }
@@ -114,7 +114,7 @@ internal static unsafe class VoyageScheduler
             {
                 if(Utils.GenericThrottle)
                 {
-                    Log("Targeting workshop CP");
+                Log("正在将航行管制面板设为目标");
                     Svc.Targets.Target = obj;
                 }
             }
@@ -122,7 +122,7 @@ internal static unsafe class VoyageScheduler
             {
                 if(Utils.GenericThrottle)
                 {
-                    Log("Locking on workshop CP");
+                Log("正在锁定航行管制面板");
                     Chat.ExecuteCommand("/lockon on");
                     return true;
                 }
@@ -170,7 +170,7 @@ internal static unsafe class VoyageScheduler
                 if(Player.IsAnimationLocked) return false;
                 if(Utils.GenericThrottle && EzThrottler.Throttle("Voyage.Interact", 2000))
                 {
-                    Log("Interacting with workshop CP");
+                    Log("正在与航行管制面板交互");
                     TargetSystem.Instance()->InteractWithObject(obj.Struct(), false);
                     return true;
                 }
@@ -205,7 +205,17 @@ internal static unsafe class VoyageScheduler
     {
         if(TryGetAddonMaster<AddonMaster.SelectString>(out var m) && m.IsAddonReady)
         {
-            var index = HousingManager.Instance()->WorkshopTerritory->Submersible.DataPointers.IndexOf(x => (x != null?x.Value->NameString:null) == name);
+            var data = HousingManager.Instance()->WorkshopTerritory->Submersible.DataPointers;
+            var index = -1;
+            for(var i = 0; i < data.Length; i++)
+            {
+                var vessel = data[i];
+                if((vessel != null ? vessel.Value->NameString : null) == name)
+                {
+                    index = i;
+                    break;
+                }
+            }
             var entry = m.Entries.SafeSelectNullable(index);
             if(entry != null)
             {
