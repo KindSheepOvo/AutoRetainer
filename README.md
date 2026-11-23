@@ -14,23 +14,3 @@
 ```text
 https://raw.githubusercontent.com/LienChan666/DalamudPlugins/refs/heads/master/pluginmaster.json
 ```
-
-## 子模块补丁与源码准备
-
-ECommons 和 AutoRetainerAPI 使用官方上游 URL，gitlink 固定到补丁清单的基准提交；完整本地化差异保存在 `patches/submodules/`，不再依赖汉化 fork 获取构建源码。原有两个汉化 fork 已删除；完整补丁和锁定清单保留所需差异，原提交 SHA 仅供历史溯源，应用、测试和构建均无需访问这些提交。
-
-```bash
-git clone --recurse-submodules https://github.com/LienChan666/AutoRetainer.git
-cd AutoRetainer
-python3 scripts/apply-submodule-patches.py
-```
-
-已有检出先执行 `git submodule sync --recursive` 和 `git submodule update --init --recursive`，再运行脚本。需要 Python 3 和 Git。CI 在构建前运行同一脚本。
-
-[子模块补丁锁定清单](patches/submodules/manifest.json)记录当前各子模块的官方 URL、基准、补丁 SHA-256、原汉化来源提交及预期结果树。
-
-脚本要求两个子模块的 HEAD、主仓索引中的 gitlink 和真实子模块索引均匹配锁定基准；工作目录必须是干净基准或完整已应用的目标树。任何暂存修改、其他文件修改、未跟踪文件和忽略文件（包括构建产生的 `bin/obj`）都会阻止应用。请使用干净检出，或自行保管并移走这些文件；脚本不会自动清理它们。重复执行会重新验证补丁和完整结果树，只有精确匹配才报告已应用。
-
-所有子模块先在临时索引中验证补丁及结果树，全部通过后才改工作目录；正常应用错误或可捕获中断会回滚本次已修改的子模块，保留原已应用状态。应用不移动 HEAD、不修改真实索引，因此主仓会显示子模块有工作目录修改，这是预期状态。运行期间不要并发修改子模块；掉电、强制终止或文件系统损坏无法提供跨目录事务保证，发生后请重新检出基准再应用，脚本会拒绝部分状态。
-
-维护规则见 [AGENTS.md](AGENTS.md)。
